@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint cypress/**/*.js && eslint cypress.config.js",
     "lint:fix": "eslint cypress/**/*.js --fix && eslint cypress.config.js --fix",
-    "open": "npx cypress open"
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "eslint-plugin-cypress": "^2.14.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "eslint": "^8.49.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.28.1"

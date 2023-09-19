@@ -10,11 +10,13 @@ describe('companies sections test', () => {
     cy.wait('@getCompanies')
   })
 
-  it('register new company', () => {
+  it('register a new company', () => {
     const company = `cy: ${faker.company.bs()} Inc`
     cy.intercept('POST', '**/companies').as('postCompanies')
 
     cy.contains('Novo').click()
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000)
     cy.get('[formcontrolname="name"]').type(company)
     cy.contains('Salvar').click()
 
@@ -22,11 +24,55 @@ describe('companies sections test', () => {
       expect(interception.response.statusCode).to.eq(204)
     })
     cy.contains('Cadastrado com sucesso!').should('be.visible')
-    // Ainda falta corrigir o click no X para fechar a modal de sucesso para então fechar está aba.
-    cy.contains('Fechar').click()
+    cy.get('.btn-close').first().click()
+    cy.reload()
+    cy.wait('@getCompanies')
 
-    cy.contains('.list', company).should('be.visible')
+    cy.get('[placeholder="Pesquisar..."]').type(company)
+    cy.get('.fa-search').click()
+    cy.wait('@getCompanies')
+    cy.contains('.list', company)
+  })
 
+  it.only('Edit a company', () => {
+    const company = `cy: ${faker.company.bs()} Inc`
+    cy.intercept('POST', '**/companies').as('postCompanies')
+    cy.contains('Novo').click()
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000)
+    cy.get('[formcontrolname="name"]').type(company)
+    cy.contains('Salvar').click()
+    cy.wait('@postCompanies').then((interception) => {
+      expect(interception.response.statusCode).to.eq(204)
+    })
+    cy.contains('Cadastrado com sucesso!').should('be.visible')
+    cy.get('.btn-close').first().click()
+    cy.reload()
+    cy.wait('@getCompanies')
+    cy.get('[placeholder="Pesquisar..."]').type(company)
+    cy.get('.fa-search').click()
+    cy.wait('@getCompanies')
+    cy.contains('.list', company)
+
+    cy.intercept('PUT', '**/companies/**').as('putCompanies')
+    const newCompany = `cy: ${faker.company.bs()} Inc`
+    cy.get('.fa-pencil').click()
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000)
+    cy.get('[formcontrolname="name"]').clear()
+    cy.get('[formcontrolname="name"]').type(newCompany)
+    cy.contains('Alterar').click()
+    cy.wait('@putCompanies').then((interception) => {
+      expect(interception.response.statusCode).to.eq(204)
+    })
+    cy.contains('Atualizado com sucesso!').should('be.visible')
+    cy.get('.btn-close').first().click()
+    cy.reload()
+    cy.wait('@getCompanies')
+    cy.get('[placeholder="Pesquisar..."]').type(newCompany)
+    cy.get('.fa-search').click()
+    cy.wait('@getCompanies')
+    cy.contains('.list', newCompany)
   })
 
 })

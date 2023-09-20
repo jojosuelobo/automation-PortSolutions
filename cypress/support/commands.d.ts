@@ -31,6 +31,16 @@ declare namespace Cypress {
        * @example cy.sessionLogin('jojosuelobo', 'senha123') // Logs into the app (or simply restores the session) using the provided credentials
        */
       sessionLogin(username?: string, password?: string): void | Cypress.Chainable<null>
+
+      /** 
+       * Create a new company into company page
+       * 
+       * @param company string - Company name that will be used to create the company register
+       * 
+       * @example cy.createCompany() // Will create a company with random name with lib Faker
+       * @example cy.createCompany('Coca-Cola') // Will create a company with 'Coca-Cola' namw
+       */
+      createCompany(company?: string): void | Cypress.Chainable<null>
     }
   }
   

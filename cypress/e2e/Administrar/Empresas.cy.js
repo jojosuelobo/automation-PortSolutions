@@ -11,10 +11,10 @@ describe('companies sections test', () => {
   })
 
   it('register a new company', () => {
-    const company = `cy: ${faker.company.bs()} Inc`
+    const company = `cy: ${faker.company.name()} Inc`
     cy.intercept('POST', '**/companies').as('postCompanies')
     cy.createCompany(company)
-    cy.wait('@getCompanies')
+    cy.wait('@postCompanies')
 
     cy.get('[placeholder="Pesquisar..."]').type(company)
     cy.get('.fa-search').click()
@@ -23,7 +23,7 @@ describe('companies sections test', () => {
   })
 
   it('Edit a company', () => {
-    const company = `cy: ${faker.company.bs()} Inc`
+    const company = `cy: ${faker.company.name()} Inc`
     cy.intercept('POST', '**/companies').as('postCompanies')
     cy.createCompany(company)
     cy.wait('@getCompanies')
@@ -34,7 +34,7 @@ describe('companies sections test', () => {
     cy.contains('.list', company)
 
     cy.intercept('PUT', '**/companies/**').as('putCompanies')
-    const newCompany = `cy: ${faker.company.bs()} Inc`
+    const newCompany = `cy: ${faker.company.name()} Inc`
     cy.get('.fa-pencil').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000)
@@ -55,7 +55,7 @@ describe('companies sections test', () => {
   })
 
   it('Delete a company', () => {
-    const company = `cy: ${faker.company.bs()} Inc`
+    const company = `cy: ${faker.company.name()} Inc`
     cy.intercept('POST', '**/companies').as('postCompanies')
     cy.createCompany(company)
     cy.wait('@getCompanies')

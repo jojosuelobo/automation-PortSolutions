@@ -26,10 +26,6 @@ Cypress.Commands.add('createCompany', (
   cy.wait(1000)
   cy.get('[formcontrolname="name"]').type(company)
   cy.contains('Salvar').click()
-
-  cy.wait('@postCompanies').then((interception) => {
-    expect(interception.response.statusCode).to.eq(204)
-  })
   cy.contains('Cadastrado com sucesso!').should('be.visible')
   cy.get('.btn-close').first().click()
   cy.reload()

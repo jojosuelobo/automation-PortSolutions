@@ -80,6 +80,6 @@ describe('companies sections test', () => {
     cy.wait('@getCompanies')
     cy.contains(company).should('not.exist')
 
-  });
+  })
 
 })

@@ -30,3 +30,24 @@ Cypress.Commands.add('createCompany', (
   cy.get('.btn-close').first().click()
   cy.reload()
 })
+
+Cypress.Commands.add('createPort', (
+  port = `cy: ${faker.location.city()} port`,
+  company = `cy: ${faker.company.name()} Inc`,
+  country = 'Brasil'
+) => {
+  cy.intercept('POST', '**/Ports').as('postPorts')
+  cy.contains('Novo').click()
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000)
+  cy.get('[formcontrolname="name"]').type(port)
+  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${company}{enter}`)
+  cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${country}{enter}`)
+  cy.contains('Salvar').click()
+  cy.contains('Cadastrado com sucesso!').should('be.visible')
+  cy.wait('@postPorts').then((interception) => {
+    expect(interception.response.statusCode).to.eq(204)
+  })
+  cy.get('.btn-close').first().click()
+  cy.reload()
+})

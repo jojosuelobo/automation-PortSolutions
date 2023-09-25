@@ -22,7 +22,7 @@ describe('companies sections test', () => {
     cy.contains('.list', company)
   })
 
-  it('Edit a company', () => {
+  it('Edit and Delelte a company', () => {
     const company = `cy: ${faker.company.name()} Inc`
     cy.intercept('POST', '**/companies').as('postCompanies')
     cy.createCompany(company)
@@ -52,18 +52,6 @@ describe('companies sections test', () => {
     cy.get('.fa-search').click()
     cy.wait('@getCompanies')
     cy.contains('.list', newCompany)
-  })
-
-  it('Delete a company', () => {
-    const company = `cy: ${faker.company.name()} Inc`
-    cy.intercept('POST', '**/companies').as('postCompanies')
-    cy.createCompany(company)
-    cy.wait('@getCompanies')
-
-    cy.get('[placeholder="Pesquisar..."]').type(company)
-    cy.get('.fa-search').click()
-    cy.wait('@getCompanies')
-    cy.contains('.list', company)
 
     cy.intercept('DELETE', '**/companies/**').as('deleteCompanies')
     cy.get('.fa-trash-can').click()
@@ -75,11 +63,9 @@ describe('companies sections test', () => {
       expect(interception.response.statusCode).to.eq(204)
     })
     cy.wait('@getCompanies')
-    cy.get('[placeholder="Pesquisar..."]').type(company)
+    cy.get('[placeholder="Pesquisar..."]').type(newCompany)
     cy.get('.fa-search').click()
     cy.wait('@getCompanies')
-    cy.contains(company).should('not.exist')
-
+    cy.contains(newCompany).should('not.exist')
   })
-
 })

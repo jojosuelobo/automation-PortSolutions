@@ -12,7 +12,7 @@ describe('countries sections test', () => {
 
   it('register a new country', () => {
     const country = `cy: ${faker.lorem.word()}`
-    const abbreviation = `cy: ${faker.lorem.word(3)}`
+    const abbreviation = `${faker.lorem.word(2)}`
     cy.intercept('POST', '**/countries').as('postCountries')
 
     cy.contains('Novo').click()
@@ -32,9 +32,9 @@ describe('countries sections test', () => {
     cy.contains('.list', country)
   })
 
-  it.only('Edit a country', () => {
+  it('Edit a country', () => {
     const country = `cy: ${faker.lorem.word()}`
-    const abbreviation = `cy: ${faker.lorem.word(3)}`
+    const abbreviation = `${faker.lorem.word(2)}`
     cy.intercept('POST', '**/countries').as('postCountries')
     cy.contains('Novo').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting

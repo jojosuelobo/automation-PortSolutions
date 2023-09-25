@@ -39,6 +39,7 @@ declare namespace Cypress {
        * 
        * @example cy.createCompany() // Will create a company with random name with lib Faker
        * @example cy.createCompany('Coca-Cola') // Will create a company with 'Coca-Cola' namw
+       * 
        */
       createCompany(company?: string): void | Cypress.Chainable<null>
     }

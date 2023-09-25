@@ -37,7 +37,7 @@ describe('companies sections test', () => {
     const newCompany = `cy: ${faker.company.name()} Inc`
     cy.get('.fa-pencil').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[formcontrolname="name"]').clear()
     cy.get('[formcontrolname="name"]').type(newCompany)
     cy.contains('Alterar').click()
@@ -68,7 +68,7 @@ describe('companies sections test', () => {
     cy.intercept('DELETE', '**/companies/**').as('deleteCompanies')
     cy.get('.fa-trash-can').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.contains('.btn', 'Deletar').click()
     cy.contains('Removido com sucesso!').should('be.visible')
     cy.wait('@deleteCompanies').then((interception) => {

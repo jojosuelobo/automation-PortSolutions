@@ -17,7 +17,7 @@ describe('countries sections test', () => {
 
     cy.contains('Novo').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[formcontrolname="name"]').type(country)
     cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
     cy.contains('Salvar').click()
@@ -38,7 +38,7 @@ describe('countries sections test', () => {
     cy.intercept('POST', '**/countries').as('postCountries')
     cy.contains('Novo').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[formcontrolname="name"]').type(country)
     cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
     cy.contains('Salvar').click()
@@ -57,7 +57,7 @@ describe('countries sections test', () => {
     const newAbbreviation = `cy: ${faker.lorem.word(3)}`
     cy.get('.fa-pencil').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[formcontrolname="name"]').clear()
     cy.get('[formcontrolname="name"]').type(newCountry)
     cy.get('[formcontrolname="abbreviation"]').clear()
@@ -82,7 +82,7 @@ describe('countries sections test', () => {
     cy.intercept('POST', '**/countries').as('postCountries')
     cy.contains('Novo').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[formcontrolname="name"]').type(country)
     cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
     cy.contains('Salvar').click()
@@ -99,7 +99,7 @@ describe('countries sections test', () => {
     cy.intercept('DELETE', '**/countries/**').as('deleteCountries')
     cy.get('.fa-trash-can').click()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
+    cy.wait(2000)
     cy.contains('.btn', 'Deletar').click()
     cy.contains('Removido com sucesso!').should('be.visible')
     cy.wait('@deleteCountries').then((interception) => {

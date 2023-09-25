@@ -23,7 +23,7 @@ Cypress.Commands.add('createCompany', (
 ) => {
   cy.contains('Novo').click()
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000)
+  cy.wait(2000)
   cy.get('[formcontrolname="name"]').type(company)
   cy.contains('Salvar').click()
   cy.contains('Cadastrado com sucesso!').should('be.visible')
@@ -39,7 +39,7 @@ Cypress.Commands.add('createPort', (
   cy.intercept('POST', '**/Ports').as('postPorts')
   cy.contains('Novo').click()
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000)
+  cy.wait(2000)
   cy.get('[formcontrolname="name"]').type(port)
   cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${company}{enter}`)
   cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${country}{enter}`)

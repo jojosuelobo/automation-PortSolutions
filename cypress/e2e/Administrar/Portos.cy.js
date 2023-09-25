@@ -58,7 +58,7 @@ describe('companies sections test', () => {
         cy.get('.fa-pencil').as('Edit').click()
         // Necessário adicionar timer de 1s para renderização da tela
         // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000)
+        cy.wait(2000)
         cy.get('[formcontrolname="name"]').clear()
         cy.get('[formcontrolname="name"]').type(newPort)
         cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${newCompany}{enter}`)
@@ -79,7 +79,7 @@ describe('companies sections test', () => {
         cy.intercept('DELETE', '**/Ports/**').as('deletePorts')
         cy.get('.fa-trash-can').as('DeleteIcon').click()
         // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000)
+        cy.wait(2000)
         cy.contains('.btn', 'Deletar').click()
         cy.contains('Removido com sucesso!').should('be.visible')
         cy.wait('@deletePorts').then((interception) => {

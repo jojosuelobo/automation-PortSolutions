@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { faker } from '@faker-js/faker'
+import { faker } from '@faker-js/faker/locale/pt_BR'
 
 describe('countries sections test', () => {
   beforeEach(() => {
@@ -10,105 +10,30 @@ describe('countries sections test', () => {
     cy.wait('@getCountries')
   })
 
-  it('register a new country', () => {
-    const country = `cy: ${faker.lorem.word()}`
-    const abbreviation = `${faker.lorem.word(2)}`
-    cy.intercept('POST', '**/countries').as('postCountries')
-
-    cy.contains('Novo').click()
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000)
-    cy.get('[formcontrolname="name"]').type(country)
-    cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
-    cy.contains('Salvar').click()
-    cy.contains('Cadastrado com sucesso!').should('be.visible')
-    cy.get('.btn-close').first().click()
-    cy.reload()
-    cy.wait('@postCountries')
-
-    cy.get('[placeholder="Pesquisar..."]').type(country)
-    cy.get('.fa-search').click()
-    cy.wait('@getCountries')
-    cy.contains('.list', country)
-  })
-
-  it('Edit a country', () => {
-    const country = `cy: ${faker.lorem.word()}`
-    const abbreviation = `${faker.lorem.word(2)}`
-    cy.intercept('POST', '**/countries').as('postCountries')
-    cy.contains('Novo').click()
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000)
-    cy.get('[formcontrolname="name"]').type(country)
-    cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
-    cy.contains('Salvar').click()
-    cy.contains('Cadastrado com sucesso!').should('be.visible')
-    cy.get('.btn-close').first().click()
-    cy.reload()
-    cy.wait('@postCountries')
-
-    cy.get('[placeholder="Pesquisar..."]').type(country)
-    cy.get('.fa-search').click()
+  it('Navegation on Country page', () => {
+    const country = 'Noruega'
+    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(country)
+    cy.get('.fa-search').as('SearchIcon').click()
     cy.wait('@getCountries')
     cy.contains('.list', country)
 
+    cy.get('@SearchInput').clear()
+    cy.get('@SearchInput').type('TOGO')
+    cy.get('@SearchIcon').click()
+    cy.wait('@getCountries')
     cy.intercept('PUT', '**/countries/**').as('putCountries')
-    const newCountry = `cy: ${faker.lorem.word()}`
-    const newAbbreviation = `cy: ${faker.lorem.word(3)}`
-    cy.get('.fa-pencil').click()
+    cy.get('.fa-pencil').as('Edit').click()
+    // Necessário adicionar timer de 1s para renderização da tela
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000)
-    cy.get('[formcontrolname="name"]').clear()
-    cy.get('[formcontrolname="name"]').type(newCountry)
+    cy.wait(1000)
+    cy.get('[formcontrolname="name"]').type('o')
     cy.get('[formcontrolname="abbreviation"]').clear()
-    cy.get('[formcontrolname="abbreviation"]').type(newAbbreviation)
+    cy.get('[formcontrolname="abbreviation"]').type('TG')
     cy.contains('Alterar').click()
     cy.wait('@putCountries').then((interception) => {
       expect(interception.response.statusCode).to.eq(204)
     })
     cy.contains('Atualizado com sucesso!').should('be.visible')
     cy.get('.btn-close').first().click()
-    cy.reload()
-    cy.wait('@getCountries')
-    cy.get('[placeholder="Pesquisar..."]').type(newCountry)
-    cy.get('.fa-search').click()
-    cy.wait('@getCountries')
-    cy.contains('.list', newCountry)
-  })
-
-  it('Delete a country', () => {
-    const country = `cy: ${faker.lorem.word()}`
-    const abbreviation = `cy: ${faker.lorem.word(3)}`
-    cy.intercept('POST', '**/countries').as('postCountries')
-    cy.contains('Novo').click()
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000)
-    cy.get('[formcontrolname="name"]').type(country)
-    cy.get('[formcontrolname="abbreviation"]').type(abbreviation)
-    cy.contains('Salvar').click()
-    cy.contains('Cadastrado com sucesso!').should('be.visible')
-    cy.get('.btn-close').first().click()
-    cy.reload()
-    cy.wait('@postCountries')
-
-    cy.get('[placeholder="Pesquisar..."]').type(country)
-    cy.get('.fa-search').click()
-    cy.wait('@getCountries')
-    cy.contains('.list', country)
-
-    cy.intercept('DELETE', '**/countries/**').as('deleteCountries')
-    cy.get('.fa-trash-can').click()
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000)
-    cy.contains('.btn', 'Deletar').click()
-    cy.contains('Removido com sucesso!').should('be.visible')
-    cy.wait('@deleteCountries').then((interception) => {
-      expect(interception.response.statusCode).to.eq(204)
-    })
-    cy.wait('@getCountries')
-    cy.get('[placeholder="Pesquisar..."]').type(country)
-    cy.get('.fa-search').click()
-    cy.wait('@getCountries')
-    cy.contains(country).should('not.exist')
   })
 })

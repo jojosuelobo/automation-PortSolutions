@@ -51,3 +51,22 @@ Cypress.Commands.add('createPort', (
   cy.get('.btn-close').first().click()
   cy.reload()
 })
+
+Cypress.Commands.add('createTerminal', (
+  terminal = `cy-${(faker.company.name()).toUpperCase()}`,
+  port = `cy: ${faker.location.city()} port`,
+) => {
+  cy.intercept('POST', '**/Terminals').as('postTerminals')
+  cy.contains('Novo').click()
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000)
+  cy.get('[formcontrolname="name"]').type(terminal)
+  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${port}{enter}`)
+  cy.contains('Salvar').click()
+  cy.contains('Cadastrado com sucesso!').should('be.visible')
+  cy.wait('@postTerminals').then((interception) => {
+    expect(interception.response.statusCode).to.eq(200)
+  })
+  cy.get('.btn-close').first().click()
+  cy.reload()
+})

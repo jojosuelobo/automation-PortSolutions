@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-import { faker } from '@faker-js/faker/locale/pt_BR'
 
 describe('countries sections test', () => {
   beforeEach(() => {

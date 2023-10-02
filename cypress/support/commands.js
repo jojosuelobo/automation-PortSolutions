@@ -70,3 +70,40 @@ Cypress.Commands.add('createTerminal', (
   cy.get('.btn-close').first().click()
   cy.reload()
 })
+
+Cypress.Commands.add('createScheduledEvent', (
+  scheduledEvent = `cy: ${faker.lorem.sentence(5)}`,
+  maintenance = null,
+  status = null
+) => {
+  if(maintenance === null){
+    maintenance = ['Manutenção da Rosca da Ruela', 'Troca da bateria', 'Troça do esteira']
+    maintenance = maintenance[(Math.floor(Math.random() * maintenance.length))]
+  }
+  if(status === null){
+    status = ['Agendado', 'Cancelado', 'Concluído']
+    maintenance = status[(Math.floor(Math.random() * maintenance.length))]
+  }
+
+  cy.intercept('POST', '**/scheduled-events').as('postScheduledEvents')
+  cy.contains('Novo').click()
+  cy.get('[formcontrolname="name"]').type(scheduledEvent)
+  // Isso deve ser alterado no futuro!
+  cy.get('[formcontrolname="startDate"]').type('0101/2098')
+  cy.get('[formcontrolname="hoursMinutesStart"]').type('0000')
+  cy.get('[formcontrolname="endDate"]').type('0201/2099')
+  cy.get('[formcontrolname="hoursMinutesEnd"]').type('0000')
+  cy.get('lg-select').each((select) => {
+    cy.wrap(select).type('{enter}')
+  })
+  cy.get('[formcontrolname="colorDisplay"]').invoke('val', `${faker.color.rgb()}`).trigger('change')
+  cy.get('[formcontrolname="description"]').type(`${faker.lorem.text()}`)
+  cy.contains('Salvar').click()
+  cy.contains('Cadastrado com sucesso!').should('be.visible')
+  cy.wait('@postScheduledEvents').then((interception) => {
+    expect(interception.response.statusCode).to.eq(200)
+  })
+  cy.get('.btn-close').first().click()
+  cy.contains('Operação').click()
+  cy.contains('Eventos Programados').click()
+})

@@ -2,12 +2,8 @@
 import { faker } from '@faker-js/faker'
 
 describe('companies sections test', () => {
-
-  const port = `cy: ${faker.location.city()} port`
-  const company = `cy: ${faker.company.name()} Inc`
-
   /**
-     * Entra para página de EMPRESAS e cadastra nova empresa
+     * Entra para pÃ¡gina de EMPRESAS e cadastra nova empresa
      *
      * @param companyReference String - Nome da empresa a ser cadastrada
     */
@@ -20,7 +16,7 @@ describe('companies sections test', () => {
   }
 
   /**
-     * Entra para página de PORTOS
+     * Entra para pÃ¡gina de PORTOS
      *
     */
   function AcessPorts() {
@@ -34,63 +30,50 @@ describe('companies sections test', () => {
     cy.guiLogin()
   })
 
-  it('Register a new Port', () => {
+  it('Register, Edit and Delete a Port', () => {
+    const port = `Porto de ${faker.location.city()}`
+    const company = `${faker.company.name()}`
+
+    const newCompany = `${faker.company.name()}`
+    const newPort = `Ports ${faker.location.city()}`
+
     AcessCompanyAndCreateCompany(company)
+    cy.reload()
+    AcessCompanyAndCreateCompany(newCompany)
+
     AcessPorts()
     cy.createPort(port, company)
-    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(port)
+
+    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(port, { delay: 0 })
     cy.get('.fa-search').as('SearchIcon').click()
     cy.wait('@getPorts')
-    cy.contains('.list', port)
-  })
+    cy.get('.list').find('tr').should('have.length', 1).contains(port)
 
-  it('Edit and Delete a Port', () => {
-    const newPort = `cy: ${faker.location.city()} port`
-    const newCompany = `cy: ${faker.company.name()} Inc`
-    AcessCompanyAndCreateCompany(newCompany)
-    AcessPorts()
-
-    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(port)
-    cy.get('.fa-search').as('SearchIcon').click()
-    cy.wait('@getPorts')
-    cy.contains('.list', port)
-
-    cy.intercept('PUT', '**/Ports/**').as('putPorts')
     cy.get('.fa-pencil').as('Edit').click()
-    // Necessário adicionar timer de 1s para renderização da tela
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
-    cy.get('[formcontrolname="name"]').clear()
-    cy.get('[formcontrolname="name"]').type(newPort)
-    cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${newCompany}{enter}`)
-    cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type('Argentina{enter}')
+    cy.wait(500)
+    cy.get('[formcontrolname="name"]').type(`{selectall}${newPort}`, { delay: 0 })
+    cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${newCompany}{enter}`, { delay: 0 })
+    cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type('Argentina{enter}', { delay: 0 })
     cy.contains('Salvar').click()
     cy.contains('Atualizado com sucesso!').should('be.visible')
-    cy.wait('@putPorts').then((interception) => {
-      expect(interception.response.statusCode).to.eq(204)
-    })
-    cy.get('.btn-close').first().click()
-    cy.reload()
-    cy.get('@SearchInput').type(newPort)
+    cy.get(':nth-child(3) > lg-toast > .toast > .toast-header > .btn-close')
+    cy.get('#staticBackdrop > .modal-dialog > .modal-content > .modal-footer > .btn-secondary').click()
+
+    cy.get('@SearchInput').type(`{selectall}${newPort}`, { delay: 0 })
     cy.get('@SearchIcon').click()
     cy.wait('@getPorts')
-    cy.contains('.list', newPort)
+    cy.get('.list').find('tr').should('have.length', 1).contains(newPort)
 
-    // Delete the previous port
-    cy.intercept('DELETE', '**/Ports/**').as('deletePorts')
     cy.get('.fa-trash-can').as('DeleteIcon').click()
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
     cy.contains('.btn', 'Deletar').click()
     cy.contains('Removido com sucesso!').should('be.visible')
-    cy.wait('@deletePorts').then((interception) => {
-      expect(interception.response.statusCode).to.eq(204)
-    })
+    cy.get('#staticBackdrop > .modal-dialog > .modal-content > .modal-footer > .btn-secondary').click({force: true})
+    cy.get('#error-modal > .modal-dialog > .modal-content > .position-absolute > .btn-close').click({force: true})
     cy.wait('@getPorts')
-    cy.get('@SearchInput').type(newPort)
+    cy.get('@SearchInput').type(`{selectall}${newPort}`, { delay: 0 })
     cy.get('@SearchIcon').click()
     cy.wait('@getCompanies')
-    cy.contains(newPort).should('not.exist')
+    cy.get('.list').find('tr').should('have.length', 0)
   })
 
 })

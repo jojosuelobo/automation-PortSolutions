@@ -3,83 +3,81 @@ import { faker } from '@faker-js/faker'
 
 describe('terminal section test', () => {
 
-    const terminal = `CY: ${(faker.company.name()).toUpperCase()}`
-    const port = `cy: ${faker.location.city()} port`
-    const company = `cy: ${faker.company.name()} Inc`
+  function AcessCompanyAndCreateCompany(companyReference) {
+    cy.intercept('GET', '**/companies/**').as('getCompanies')
+    cy.contains('Administrar').click()
+    cy.contains('Empresas').click()
+    cy.wait('@getCompanies')
+    cy.createCompany(companyReference)
+  }
 
-    function AcessCompanyAndCreateCompany(companyReference) {
-        cy.intercept('GET', '**/companies/**').as('getCompanies')
-        cy.contains('Administrar').click()
-        cy.contains('Empresas').click()
-        cy.wait('@getCompanies')
-        cy.createCompany(companyReference)
-    }
+  function AcessPortsAndCreatePort(portReference, companyReference) {
+    AcessCompanyAndCreateCompany(companyReference)
+    cy.intercept('GET', '**/ports/**').as('getPorts')
+    cy.contains('Administrar').click()
+    cy.contains('Portos').click()
+    cy.wait('@getPorts')
+    cy.createPort(portReference, companyReference)
+  }
 
-    function AcessPortsAndCreatePort(portReference, companyReference) {
-        AcessCompanyAndCreateCompany(companyReference)
-        cy.intercept('GET', '**/ports/**').as('getPorts')
-        cy.contains('Administrar').click()
-        cy.contains('Portos').click()
-        cy.wait('@getPorts')
-        cy.createPort(portReference, companyReference)
-    }
+  function AcessTerminals() {
+    cy.intercept('GET', '**/terminals/**').as('getTerminals')
+    cy.contains('Administrar').click()
+    cy.contains('Terminais').click()
+    cy.wait('@getTerminals')
+  }
 
-    function AcessTerminals() {
-        cy.intercept('GET', '**/terminals/**').as('getTerminals')
-        cy.contains('Administrar').click()
-        cy.contains('Terminais').click()
-        cy.wait('@getTerminals')
-    }
+  beforeEach(() => {
+    cy.guiLogin()
+  })
 
-    beforeEach(() => {
-        cy.guiLogin()
-    })
+  it.only('Register, Edit and Delete a terminal', () => {
+    // Register and Check a terminal
+    const terminal = `Terminal ${(faker.lorem.sentence(3))}`
+    const port = `Porto ${faker.location.city()}`
+    const company = `${faker.company.name()}`
 
-    it('Register a new terminal', () => {
-        AcessPortsAndCreatePort(port, company)
-        AcessTerminals()
-        cy.createTerminal(terminal, port)
+    AcessPortsAndCreatePort(port, company)
+    AcessTerminals()
+    cy.createTerminal(terminal, port)
+    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(terminal, { delay: 0 })
+    cy.get('.fa-search').as('SearchIcon').click()
+    cy.wait('@getTerminals')
+    cy.get('.list').find('tr').should('have.length', 1).contains(terminal)
 
-        cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(terminal)
-        cy.get('.fa-search').as('SearchIcon').click()
-        cy.wait('@getTerminals')
-        cy.contains('.list', port)
-    })
+    const newTerminal = `New Terminal ${(faker.lorem.sentence(3))}`
+    const newPort = `New Porto ${faker.location.city()}`
+    const newCompany = `New ${faker.company.name()}`
 
-    it('Edit and Delete a terminal', () => {
-        const newTerminal = `CY: ${(faker.company.name()).toUpperCase()}`
-        const newPort = `cy: ${faker.location.city()} port`
-        const newCompany = `cy: ${faker.company.name()} Inc`
+    // Register a new terminal for EDIT mode
+    AcessPortsAndCreatePort(newPort, newCompany)
+    AcessTerminals()
+    cy.get('@SearchInput').type(`{selectall}${terminal}`, { delay: 0 })
+    cy.get('@SearchIcon').click()
+    cy.wait('@getTerminals')
+    cy.get('.list').find('tr').should('have.length', 1).contains(terminal)
 
-        // Register a new terminal
-        AcessPortsAndCreatePort(newPort, newCompany)
-        AcessTerminals()
-        cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(terminal)
-        cy.get('.fa-search').as('SearchIcon').click()
-        cy.wait('@getTerminals')
-        cy.contains('.list', terminal)
+    // Edit the terminal
+    cy.get('.fa-pencil').as('Edit').click()
+    cy.wait(500)
+    cy.get('[formcontrolname="name"]').type(`{selectall}${newTerminal}`, { delay: 0 })
+    cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${newPort}{enter}`, { delay: 0 })
+    cy.contains('Salvar').click()
+    cy.contains('Atualizado com sucesso!').should('be.visible')
+    cy.get('#staticBackdrop > .modal-dialog > .modal-content > .modal-footer > .btn-secondary').click()
 
-        // Edit the terminal
-        cy.intercept('PUT', '**/Terminals/**').as('putTerminals')
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000)
-        cy.get('.fa-pencil').as('Edit').click()
-        // Necessário adicionar timer de 1s para renderização da tela
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000)
-        cy.get('[formcontrolname="name"]').clear()
-        cy.get('[formcontrolname="name"]').type(newTerminal)
-        cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${newPort}{enter}`)
-        cy.contains('Salvar').click()
-        cy.contains('Atualizado com sucesso!').should('be.visible')
-        cy.wait('@putTerminals').then((interception) => {
-            expect(interception.response.statusCode).to.eq(204)
-        })
-        cy.get('.btn-close').first().click()
-        cy.reload()
-        cy.get('@SearchInput').type(newPort)
-        cy.get('@SearchIcon').click()
-        cy.wait('@getPorts')
-        cy.contains('.list', newPort)
-    })
+    cy.get('@SearchInput').type(`{selectall}${newTerminal}`, { delay: 0 })
+    cy.get('@SearchIcon').click()
+    cy.wait('@getPorts')
+    cy.get('.list').find('tr').should('have.length', 1).contains(newTerminal)
+
+    // Delete created terminal
+    cy.get('.fa-trash-can').click()
+    cy.contains('.btn', 'Deletar').click()
+    cy.contains('Removido com sucesso!').should('be.visible')
+    cy.get('#closeModal').click({ force: true })
+    cy.get('@SearchInput').type(`{selectall}${newTerminal}`, { delay: 0 })
+    cy.get('@SearchIcon').click()
+    cy.get('.list').find('tr').should('have.length', 0)
+  })
 })

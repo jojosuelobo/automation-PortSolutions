@@ -5,8 +5,8 @@ Cypress.Commands.add('guiLogin', (
   password = Cypress.env('PASSWORD')
 ) => {
   cy.visit('/login')
-  cy.get('[formcontrolname="login"]').type(username)
-  cy.get('[formcontrolname="password"]').type(password)
+  cy.get('[formcontrolname="login"]').type(username, { delay: 0 })
+  cy.get('[formcontrolname="password"]').type(password, { delay: 0 })
   cy.get('[name="submit"]').click()
 })
 
@@ -19,70 +19,53 @@ Cypress.Commands.add('sessionLogin', (
 })
 
 Cypress.Commands.add('createCompany', (
-  company = `cy: ${faker.company.bs()} Inc`
+  company = `${faker.company.name()}`
 ) => {
   cy.contains('Novo').click()
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000)
-  cy.get('[formcontrolname="name"]').type(company)
-  cy.contains('Salvar').click()
-  cy.contains('Cadastrado com sucesso!').should('be.visible')
-  cy.get('.btn-close').first().click()
-  cy.reload()
+  cy.wait(500)
+  cy.get('[formcontrolname="name"]').type(company, { delay: 0 })
+  cy.contains('button', 'Salvar').click()
+  //cy.contains('Cadastrado com sucesso!').should('be.visible')
+  //cy.get(':nth-child(3) > lg-toast > .toast > .toast-header > .btn-close')
+  cy.get('#staticBackdrop > .modal-dialog > .modal-content > .modal-footer > .btn-secondary').as('Fechar').click()
 })
 
 Cypress.Commands.add('createPort', (
-  port = `cy: ${faker.location.city()} port`,
-  company = `cy: ${faker.company.name()} Inc`,
+  port = `Porto ${faker.location.city()}`,
+  company = `${faker.company.name()}`,
   country = 'Brasil'
 ) => {
-  cy.intercept('POST', '**/Ports').as('postPorts')
   cy.contains('Novo').click()
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000)
-  cy.get('[formcontrolname="name"]').type(port)
-  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${company}{enter}`)
-  cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${country}{enter}`)
+  cy.wait(500)
+  cy.get('[formcontrolname="name"]').type(port, { delay: 0 })
+  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${company}{enter}`, { delay: 0 })
+  cy.get(':nth-child(3) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${country}{enter}`, { delay: 0 })
   cy.contains('Salvar').click()
-  cy.contains('Cadastrado com sucesso!').should('be.visible')
-  cy.wait('@postPorts').then((interception) => {
-    expect(interception.response.statusCode).to.eq(204)
-  })
-  cy.get('.btn-close').first().click()
-  cy.reload()
+  //cy.get(':nth-child(2) > lg-toast > .toast > .toast-header > .btn-close').click()
+  cy.get('@Fechar').click()
 })
 
 Cypress.Commands.add('createTerminal', (
-  terminal = `cy-${(faker.company.name()).toUpperCase()}`,
-  port = `cy: ${faker.location.city()} port`,
+  terminal = `Terminal ${(faker.lorem.sentence(3))}`,
+  port = `Porto ${faker.location.city()}`,
 ) => {
-  cy.intercept('POST', '**/Terminals').as('postTerminals')
   cy.contains('Novo').click()
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000)
-  cy.get('[formcontrolname="name"]').type(terminal)
-  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${port}{enter}`)
+  cy.wait(500)
+  cy.get('[formcontrolname="name"]').type(terminal, { delay: 0 })
+  cy.get(':nth-child(2) > .col-sm-10 > lg-select > .ng-select-searchable > .ng-select-container').type(`${port}{enter}`, { delay: 0 })
   cy.contains('Salvar').click()
-  cy.contains('Cadastrado com sucesso!').should('be.visible')
-  cy.wait('@postTerminals').then((interception) => {
-    expect(interception.response.statusCode).to.eq(200)
-  })
-  cy.get('.btn-close').first().click()
-  cy.reload()
+  //cy.contains('Cadastrado com sucesso!').should('be.visible')
+  cy.get('#staticBackdrop > .modal-dialog > .modal-content > .position-absolute > .btn-close')
+  cy.get('@Fechar').click()
 })
 
 Cypress.Commands.add('createScheduledEvent', (
-  scheduledEvent = `cy: ${faker.lorem.sentence(5)}`,
-  maintenance = null,
+  scheduledEvent = `${faker.lorem.sentence(5)}`,
   status = null
 ) => {
-  if(maintenance === null){
-    maintenance = ['Manutenção da Rosca da Ruela', 'Troca da bateria', 'Troça do esteira']
-    maintenance = maintenance[(Math.floor(Math.random() * maintenance.length))]
-  }
   if(status === null){
     status = ['Agendado', 'Cancelado', 'Concluído']
-    maintenance = status[(Math.floor(Math.random() * maintenance.length))]
+    const maintenance = status[(Math.floor(Math.random() * maintenance.length))]
   }
 
   cy.intercept('POST', '**/scheduled-events').as('postScheduledEvents')

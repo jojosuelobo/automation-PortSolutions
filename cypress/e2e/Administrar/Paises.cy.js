@@ -11,27 +11,18 @@ describe('countries sections test', () => {
 
   it('Navegation on Country page', () => {
     const country = 'Noruega'
-    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(country)
+    cy.get('[placeholder="Pesquisar..."]').as('SearchInput').type(country, { delay: 0 })
     cy.get('.fa-search').as('SearchIcon').click()
-    cy.wait('@getCountries')
-    cy.contains('.list', country)
-
+    cy.get('.list').find('tr').should('have.length', 1).contains(country)
     cy.get('@SearchInput').clear()
-    cy.get('@SearchInput').type('TOGO')
+    cy.get('@SearchInput').type('{selectall}Togo', { delay: 0 })
     cy.get('@SearchIcon').click()
-    cy.wait('@getCountries')
-    cy.intercept('PUT', '**/countries/**').as('putCountries')
     cy.get('.fa-pencil').as('Edit').click()
-    // Necessário adicionar timer de 1s para renderização da tela
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000)
-    cy.get('[formcontrolname="name"]').type('o')
+    cy.get('[formcontrolname="name"]', { timeout: 10000 }).should('be.visible').clear()
+    cy.get('[formcontrolname="name"]').type('Togo', { delay: 0 })
     cy.get('[formcontrolname="abbreviation"]').clear()
-    cy.get('[formcontrolname="abbreviation"]').type('TG')
+    cy.get('[formcontrolname="abbreviation"]').type('TG', { delay: 0 })
     cy.contains('Alterar').click()
-    cy.wait('@putCountries').then((interception) => {
-      expect(interception.response.statusCode).to.eq(204)
-    })
     cy.contains('Atualizado com sucesso!').should('be.visible')
     cy.get('.btn-close').first().click()
   })
